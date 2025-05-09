@@ -5,6 +5,8 @@ import 'firebase_options.dart';
 import 'package:project_house/ui/pages/start_page.dart';
 import 'package:project_house/ui/pages/login_page.dart';
 import 'package:project_house/ui/pages/signup_page.dart';
+import 'package:project_house/ui/pages/admin_page.dart';
+import 'package:project_house/ui/pages/kosan_list_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +28,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginPage(),
         '/signup': (context) => SignupPage(),
         '/home': (context) => HomePage(),
+        '/admin': (context) => AdminPage(),
+        '/kosan': (context) => KosanListPage(),
       },
     );
   }

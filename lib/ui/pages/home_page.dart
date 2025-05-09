@@ -7,6 +7,8 @@ import 'package:project_house/ui/pages/customer_services.dart';
 import 'package:project_house/ui/pages/detail_page.dart';
 import 'package:project_house/ui/pages/profile_page.dart';
 import 'package:project_house/ui/pages/search_page.dart';
+import 'package:project_house/services/kosan_service.dart';
+import 'package:project_house/models/kosan.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> list = const [Text('Home'), Text('Exprole'), Text('User')];
 
   int _selectedIndex = 0;
+  final KosanService _kosanService = KosanService();
 
   List<dynamic> menuItems = [
     {'icon': 'assets/images/home.svg', 'label': 'Home'},
@@ -122,157 +125,145 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 45),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Rekomendasi Terbaik',
-                    style: blackTextStyle.copyWith(
-                      fontSize: 20,
-                      fontWeight: bold,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        'Rekomendasi Terbaik',
+                        style: blackTextStyle.copyWith(
+                          fontSize: 20,
+                          fontWeight: bold,
+                        ),
+                      ),
+                      Icon(Icons.star, color: Colors.yellow, size: 30),
+                    ],
                   ),
-                  Icon(Icons.star, color: Colors.yellow, size: 30),
                 ],
               ),
               const SizedBox(height: 20),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => DetailPage()),
-                    );
-                  },
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.asset(
-                          'assets/images/carsoul_images1.jpg',
-                          height: 150,
-                          width: 150,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Full Furnished Home',
-                              style: blackTextStyle.copyWith(
-                                fontSize: 13,
-                                fontWeight: bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
+              StreamBuilder<List<Kosan>>(
+                stream: _kosanService.getKosans(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text('Belum ada properti yang tersedia'));
+                  }
+                  
+                  return Column(
+                    children: snapshot.data!.map((kosan) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => DetailPage()),
+                              );
+                            },
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.location_on, size: 20),
-                                SizedBox(width: 4),
-                                Text(
-                                  ' Jalan Setia Warga 1',
-                                  style: blackTextStyle.copyWith(
-                                    fontSize: 10,
-                                    fontWeight: light,
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: kosan.imageUrl.isNotEmpty
+                                    ? Image.network(
+                                        kosan.imageUrl,
+                                        height: 150,
+                                        width: 150,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Container(
+                                            height: 150,
+                                            width: 150,
+                                            color: Colors.grey[300],
+                                            child: Icon(Icons.error),
+                                          );
+                                        },
+                                      )
+                                    : Image.asset(
+                                        'assets/images/carsoul_images1.jpg',
+                                        height: 150,
+                                        width: 150,
+                                        fit: BoxFit.cover,
+                                      ),
+                                ),
+                                SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        kosan.deskripsi.split('\n').first,
+                                        style: blackTextStyle.copyWith(
+                                          fontSize: 13,
+                                          fontWeight: bold,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.location_on, size: 20),
+                                          SizedBox(width: 4),
+                                          Expanded(
+                                            child: Text(
+                                              kosan.lokasi,
+                                              style: blackTextStyle.copyWith(
+                                                fontSize: 10,
+                                                fontWeight: light,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Rp. ${kosan.harga}',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.star, color: Colors.yellow),
+                                          SizedBox(width: 4),
+                                          Text(
+                                            '4.5',
+                                            style: blackTextStyle.copyWith(
+                                              fontSize: 10,
+                                              fontWeight: light,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 15),
-                            Row(
-                              children: [
-                                Icon(Icons.bed, size: 20),
-                                SizedBox(width: 4),
-                                Text('3'),
-                                SizedBox(width: 20),
-                                Icon(Icons.bathtub, size: 20),
-                                SizedBox(width: 4),
-                                Text('2'),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(children: [Text('Rp. 20000/Bulan')]),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => DetailPage()),
-                    );
-                  },
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.asset(
-                          'assets/images/carsoul_images1.jpg',
-                          height: 150,
-                          width: 150,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Full Furnished Home',
-                              style: blackTextStyle.copyWith(
-                                fontSize: 13,
-                                fontWeight: bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.location_on, size: 20),
-                                SizedBox(width: 4),
-                                Text(
-                                  ' Jalan Setia Warga 1',
-                                  style: blackTextStyle.copyWith(
-                                    fontSize: 10,
-                                    fontWeight: light,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 15),
-                            Row(
-                              children: [
-                                Icon(Icons.bed, size: 20),
-                                SizedBox(width: 4),
-                                Text('3'),
-                                SizedBox(width: 20),
-                                Icon(Icons.bathtub, size: 20),
-                                SizedBox(width: 4),
-                                Text('2'),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(children: [Text('Rp. 20000/Bulan')]),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                      );
+                    }).toList(),
+                  );
+                },
               ),
             ],
           ),
