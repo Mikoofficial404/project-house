@@ -54,7 +54,8 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: SingleChildScrollView(
+        child: Column(
         children: [
           const SizedBox(height: 50),
           Text(
@@ -253,6 +254,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ],
+      ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,

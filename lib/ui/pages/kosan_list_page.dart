@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:project_house/models/kosan.dart';
 import 'package:project_house/services/kosan_service.dart';
 import 'package:project_house/shared/theme.dart';
+import 'package:project_house/ui/pages/detail_page.dart';
 
 class KosanListPage extends StatefulWidget {
   const KosanListPage({Key? key}) : super(key: key);
@@ -12,351 +13,190 @@ class KosanListPage extends StatefulWidget {
 
 class _KosanListPageState extends State<KosanListPage> {
   final KosanService _kosanService = KosanService();
+  List<Kosan> _allKosans = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadKosans();
+  }
+
+  void _loadKosans() async {
+    _kosanService.getKosans().listen((kosans) {
+      setState(() {
+        _allKosans = kosans;
+        _isLoading = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Daftar Kosan'),
-        backgroundColor: purpleColor,
+        title: Text(
+          'Daftar Kosan',
+          style: blackTextStyle.copyWith(
+            fontSize: 18,
+            fontWeight: medium,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
       ),
-      body: StreamBuilder<List<Kosan>>(
-        stream: _kosanService.getKosans(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Belum ada kosan tersedia'));
-          }
-
-          List<Kosan> kosans = snapshot.data!;
-          
-          return ListView.builder(
-            padding: EdgeInsets.all(16),
-            itemCount: kosans.length,
-            itemBuilder: (context, index) {
-              Kosan kosan = kosans[index];
-              return Card(
-                margin: EdgeInsets.only(bottom: 16),
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailPage(kosan: kosan),
-                      ),
-                    );
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: Colors.white,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _buildKosanList(),
+    );
+  }
+  
+  Widget _buildKosanList() {
+    if (_allKosans.isEmpty) {
+      return const Center(child: Text('Belum ada kosan tersedia'));
+    }
+    
+    return ListView.builder(
+      padding: const EdgeInsets.only(top: 16, bottom: 100),
+      itemCount: _allKosans.length,
+      itemBuilder: (context, index) {
+        final kosan = _allKosans[index];
+        return _buildKosanCard(kosan);
+      },
+    );
+  }
+  
+  Widget _buildKosanCard(Kosan kosan) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailPage(kosan: kosan),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+              child: Image.network(
+                kosan.imageUrl,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 200,
+                    color: Colors.grey[300],
+                    child: const Center(
+                      child: Icon(Icons.error, color: Colors.white),
+                    ),
+                  );
+                },
+              ),
+            ),
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    kosan.deskripsi.split('\n').first,
+                    style: blackTextStyle.copyWith(
+                      fontSize: 18,
+                      fontWeight: medium,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                        child: kosan.imageUrl.isNotEmpty
-                            ? Image.network(
-                                kosan.imageUrl,
-                                height: 180,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    height: 180,
-                                    width: double.infinity,
-                                    color: Colors.grey[300],
-                                    child: Icon(Icons.error, size: 50),
-                                  );
-                                },
-                              )
-                            : Container(
-                                height: 180,
-                                width: double.infinity,
-                                color: Colors.grey[300],
-                                child: Icon(Icons.home, size: 50),
-                              ),
+                      Icon(
+                        Icons.place,
+                        size: 16,
+                        color: greyColor,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              kosan.deskripsi.split('\n').first, // Use first line as title
-                              style: blackTextStyle.copyWith(
-                                fontSize: 16,
-                                fontWeight: bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.location_on, color: Colors.grey, size: 16),
-                                SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    kosan.lokasi,
-                                    style: greyTextStyle.copyWith(fontSize: 14),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Rp ${kosan.harga}',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: kosan.fasilitas.take(3).map((facility) {
-                                return Chip(
-                                  label: Text(
-                                    facility,
-                                    style: TextStyle(fontSize: 12),
-                                  ),
-                                  backgroundColor: Colors.grey[200],
-                                  padding: EdgeInsets.zero,
-                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                );
-                              }).toList(),
-                            ),
-                          ],
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          kosan.lokasi,
+                          style: greyTextStyle.copyWith(
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
-                ),
-              );
-            },
-          );
-        },
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Rp ${kosan.harga.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                        style: TextStyle(
+                          color: purpleColor,
+                          fontSize: 16,
+                          fontWeight: medium,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          _buildFacilityItem(Icons.king_bed, kosan.bedrooms.toString()),
+                          _buildFacilityItem(Icons.bathtub, kosan.bathrooms.toString()),
+                          _buildFacilityItem(Icons.kitchen, kosan.kitchens.toString()),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-class DetailPage extends StatelessWidget {
-  final Kosan kosan;
-
-  const DetailPage({Key? key, required this.kosan}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    String content = kosan.deskripsi;
-    
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('Property Details'),
-        actions: [
-          Icon(Icons.favorite_border),
-          const SizedBox(width: 20),
-          Icon(Icons.share),
-          const SizedBox(width: 10),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.white,
+  
+  Widget _buildFacilityItem(IconData icon, String count) {
+    return Container(
+      margin: const EdgeInsets.only(left: 16),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: greyColor,
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 200,
-                  width: double.infinity,
-                  child: kosan.imageUrl.isNotEmpty
-                      ? Image.network(
-                          kosan.imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey[300],
-                              child: Icon(Icons.error, size: 50),
-                            );
-                          },
-                        )
-                      : Container(
-                          color: Colors.grey[300],
-                          child: Icon(Icons.home, size: 50),
-                        ),
-                ),
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              kosan.deskripsi.split('\n').first,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'Rp ${kosan.harga}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 25),
-                      // Display facilities as icons if possible
-                      Wrap(
-                        spacing: 20,
-                        runSpacing: 10,
-                        children: kosan.fasilitas.map((facility) {
-                          IconData icon;
-                          // Map common facilities to icons
-                          if (facility.toLowerCase().contains('wifi')) {
-                            icon = Icons.wifi;
-                          } else if (facility.toLowerCase().contains('ac') || 
-                                    facility.toLowerCase().contains('air')) {
-                            icon = Icons.ac_unit;
-                          } else if (facility.toLowerCase().contains('tv')) {
-                            icon = Icons.tv;
-                          } else if (facility.toLowerCase().contains('kamar mandi') || 
-                                    facility.toLowerCase().contains('shower')) {
-                            icon = Icons.shower;
-                          } else if (facility.toLowerCase().contains('dapur') || 
-                                    facility.toLowerCase().contains('kitchen')) {
-                            icon = Icons.kitchen;
-                          } else if (facility.toLowerCase().contains('kasur') || 
-                                    facility.toLowerCase().contains('bed')) {
-                            icon = Icons.bed;
-                          } else {
-                            icon = Icons.check_circle;
-                          }
-                          
-                          return Column(
-                            children: [
-                              Icon(icon, size: 30),
-                              SizedBox(height: 7),
-                              Text(
-                                facility,
-                                style: blackTextStyle.copyWith(
-                                  fontSize: 12,
-                                  fontWeight: bold,
-                                ),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 25),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Description Property',
-                            style: blackTextStyle.copyWith(
-                              fontSize: 15,
-                              fontWeight: bold,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            content,
-                            textAlign: TextAlign.justify,
-                            style: greyTextStyle.copyWith(
-                              fontSize: 15,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Location',
-                            style: blackTextStyle.copyWith(
-                              fontSize: 15,
-                              fontWeight: bold,
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      kosan.lokasi,
-                                      style: greyTextStyle.copyWith(
-                                        fontSize: 14,
-                                        fontWeight: regular,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Icon(
-                                Icons.location_on_outlined,
-                                color: Colors.grey,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Center(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            // Implement WhatsApp contact functionality
-                          },
-                          label: Text("Pesan Lewat Whatsapp"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          const SizedBox(width: 4),
+          Text(
+            count,
+            style: greyTextStyle.copyWith(
+              fontSize: 14,
             ),
           ),
-        ),
+        ],
       ),
     );
   }

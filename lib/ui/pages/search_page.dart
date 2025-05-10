@@ -4,6 +4,7 @@ import 'package:project_house/shared/theme.dart';
 import 'package:project_house/ui/pages/detail_page.dart';
 import 'package:project_house/ui/pages/home_page.dart';
 import 'package:project_house/ui/pages/profile_page.dart';
+import 'package:project_house/models/kosan.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -13,7 +14,6 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  List<String> names = ['Jakarta Barat', 'Jawa Barat', 'Bandung'];
 
   final List<String> category = [
     'Living Room',
@@ -34,6 +34,21 @@ class _SearchPageState extends State<SearchPage> {
   ];
 
   final List<Widget> _pages = [HomePage(), SearchPage(), ProfilePage()];
+  
+  // Create a sample Kosan object for demonstration
+  final Kosan sampleKosan = Kosan(
+    id: 'sample-1',
+    imageUrl: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YXBhcnRtZW50fGVufDB8fDB8fHww&w=1000&q=80',
+    deskripsi: 'Modern Apartment in Jakarta\nLuxury living in the heart of the city',
+    lokasi: 'Jln. Ahmad Yani No.1, Jakarta, Indonesia',
+    harga: 5000000,
+    fasilitas: ['Living Room', 'Bed Room', 'Kitchen', 'WiFi', 'AC'],
+    bedrooms: 2,
+    bathrooms: 2,
+    kitchens: 1,
+    latitude: -6.200000,
+    longitude: 106.816666,
+  );
 
   void _onItemTapped(int index) {
     Navigator.pushReplacement(
@@ -46,23 +61,16 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          const SizedBox(height: 60),
-          SearchAnchor.bar(
-            suggestionsBuilder:
-                (context, controller) => names
-                    .where(
-                      (e) =>
-                          controller.text.isEmpty ||
-                          e.toLowerCase().contains(
-                            controller.text.toLowerCase(),
-                          ),
-                    )
-                    .map((e) => ListTile(title: Text(e))),
-          ),
+          const SizedBox(height: 20),
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.all(15),
@@ -129,7 +137,7 @@ class _SearchPageState extends State<SearchPage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => DetailPage()),
+                  MaterialPageRoute(builder: (context) => DetailPage(kosan: sampleKosan)),
                 );
               },
               child: Row(

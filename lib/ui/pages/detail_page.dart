@@ -5,9 +5,12 @@ import 'package:readmore/readmore.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:project_house/models/kosan.dart';
 
 class DetailPage extends StatefulWidget {
-  const DetailPage({super.key});
+  final Kosan? kosan; // Make it optional for now to maintain backward compatibility
+  
+  const DetailPage({super.key, this.kosan});
 
   @override
   State<DetailPage> createState() => _DetailPageState();
@@ -25,6 +28,9 @@ class _DetailPageState extends State<DetailPage> {
   ];
   @override
   Widget build(BuildContext context) {
+    // Use the kosan data if available, otherwise use default values
+    final kosan = widget.kosan;
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -52,10 +58,21 @@ class _DetailPageState extends State<DetailPage> {
                 SizedBox(
                   height: 200,
                   width: double.infinity,
-                  child: Image.asset(
-                    'assets/images/carsoul_images1.jpg',
-                    fit: BoxFit.cover,
-                  ),
+                  child: kosan?.imageUrl != null && kosan!.imageUrl.isNotEmpty
+                    ? Image.network(
+                        kosan.imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'assets/images/carsoul_images1.jpg',
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        'assets/images/carsoul_images1.jpg',
+                        fit: BoxFit.cover,
+                      ),
                 ),
                 const SizedBox(height: 16),
                 Padding(
@@ -66,21 +83,42 @@ class _DetailPageState extends State<DetailPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Model Apartement in New York',
-                            style: TextStyle(
-                              fontSize: 13,
+                          Text(
+                            kosan?.deskripsi.split('\n').first ?? 'Model Apartement in New York',
+                            style: const TextStyle(
+                              fontSize: 16,
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const Text(
-                            'Rp. 50000',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                'Rp. ${kosan?.harga.toString() ?? '50000'}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              // Display availability status
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: kosan?.isAvailable ?? true ? Colors.green : Colors.red,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  kosan?.isAvailable ?? true ? 'Tersedia' : 'Tidak Tersedia',
+                                  style: whiteTextStyle.copyWith(
+                                    fontSize: 12,
+                                    fontWeight: medium,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -93,7 +131,7 @@ class _DetailPageState extends State<DetailPage> {
                               FaIcon(FontAwesomeIcons.bed, size: 30),
                               SizedBox(height: 7),
                               Text(
-                                '2 Bed',
+                                '${kosan?.bedrooms ?? 2} Bed',
                                 style: blackTextStyle.copyWith(
                                   fontSize: 15,
                                   fontWeight: bold,
@@ -106,7 +144,7 @@ class _DetailPageState extends State<DetailPage> {
                               FaIcon(FontAwesomeIcons.kitchenSet, size: 30),
                               SizedBox(height: 7),
                               Text(
-                                '1 Kitchen',
+                                '${kosan?.kitchens ?? 1} Kitchen',
                                 style: blackTextStyle.copyWith(
                                   fontSize: 15,
                                   fontWeight: bold,
@@ -119,7 +157,7 @@ class _DetailPageState extends State<DetailPage> {
                               FaIcon(FontAwesomeIcons.shower, size: 30),
                               SizedBox(height: 7),
                               Text(
-                                '2 Shower',
+                                '${kosan?.bathrooms ?? 2} Shower',
                                 style: blackTextStyle.copyWith(
                                   fontSize: 15,
                                   fontWeight: bold,
@@ -142,7 +180,7 @@ class _DetailPageState extends State<DetailPage> {
                           ),
                           const SizedBox(height: 10),
                           ReadMoreText(
-                            content,
+                            kosan?.deskripsi ?? content,
                             trimLines: 3,
                             textAlign: TextAlign.justify,
                             trimMode: TrimMode.Line,
@@ -183,7 +221,7 @@ class _DetailPageState extends State<DetailPage> {
                                 children: [
                                   const SizedBox(height: 5),
                                   Text(
-                                    'Jln. Ahmad Yani No.1',
+                                    kosan?.lokasi.split(',').first ?? 'Jln. Ahmad Yani No.1',
                                     style: greyTextStyle.copyWith(
                                       fontSize: 14,
                                       fontWeight: regular,
@@ -191,7 +229,9 @@ class _DetailPageState extends State<DetailPage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Jakarta, Indonesia',
+                                    kosan?.lokasi.contains(',') == true 
+                                        ? kosan!.lokasi.split(',').skip(1).join(',').trim() 
+                                        : 'Jakarta, Indonesia',
                                     style: greyTextStyle.copyWith(
                                       fontSize: 14,
                                       fontWeight: regular,
@@ -210,7 +250,7 @@ class _DetailPageState extends State<DetailPage> {
                             height: 200,
                             child: FlutterMap(
                               options: MapOptions(
-                                center: LatLng(-6.200000, 106.816666),
+                                center: LatLng(kosan?.latitude ?? -6.200000, kosan?.longitude ?? 106.816666),
                                 zoom: 15.0,
                               ),
                               children: [
@@ -239,29 +279,65 @@ class _DetailPageState extends State<DetailPage> {
                             spacing: 12,
                             runSpacing: 4,
                             children: [
-                              ...List.generate(category.length, (index) {
-                                IconData icon;
-                                switch (category[index]) {
-                                  case 'Living Room':
+                              if (kosan?.fasilitas != null && kosan!.fasilitas.isNotEmpty)
+                                ...kosan.fasilitas.map((facility) {
+                                  IconData icon;
+                                  String facilityStr = facility.toString();
+                                  
+                                  if (facilityStr.toLowerCase().contains('living') || 
+                                      facilityStr.toLowerCase().contains('ruang tamu')) {
                                     icon = Icons.weekend;
-                                    break;
-                                  case 'Bed Room':
+                                  } else if (facilityStr.toLowerCase().contains('bed') || 
+                                           facilityStr.toLowerCase().contains('kamar')) {
                                     icon = Icons.bed;
-                                    break;
-                                  case 'Dining Room':
+                                  } else if (facilityStr.toLowerCase().contains('dining') || 
+                                           facilityStr.toLowerCase().contains('makan')) {
                                     icon = Icons.restaurant;
-                                    break;
-                                  case 'Kitchen':
+                                  } else if (facilityStr.toLowerCase().contains('kitchen') || 
+                                           facilityStr.toLowerCase().contains('dapur')) {
                                     icon = Icons.kitchen;
-                                    break;
-                                  default:
+                                  } else if (facilityStr.toLowerCase().contains('bath') || 
+                                           facilityStr.toLowerCase().contains('mandi')) {
+                                    icon = Icons.shower;
+                                  } else if (facilityStr.toLowerCase().contains('wifi') || 
+                                           facilityStr.toLowerCase().contains('internet')) {
+                                    icon = Icons.wifi;
+                                  } else if (facilityStr.toLowerCase().contains('ac') || 
+                                           facilityStr.toLowerCase().contains('air')) {
+                                    icon = Icons.ac_unit;
+                                  } else {
                                     icon = Icons.home;
-                                }
-                                return Chip(
-                                  avatar: Icon(icon, size: 20),
-                                  label: Text(category[index]),
-                                );
-                              }),
+                                  }
+                                  
+                                  return Chip(
+                                    avatar: Icon(icon, size: 20),
+                                    label: Text(facilityStr),
+                                  );
+                                }).toList()
+                              else
+                                ...List.generate(category.length, (index) {
+                                  IconData icon;
+                                  switch (category[index]) {
+                                    case 'Living Room':
+                                      icon = Icons.weekend;
+                                      break;
+                                    case 'Bed Room':
+                                      icon = Icons.bed;
+                                      break;
+                                    case 'Dining Room':
+                                      icon = Icons.restaurant;
+                                      break;
+                                    case 'Kitchen':
+                                      icon = Icons.kitchen;
+                                      break;
+                                    default:
+                                      icon = Icons.home;
+                                  }
+                                  return Chip(
+                                    avatar: Icon(icon, size: 20),
+                                    label: Text(category[index]),
+                                  );
+                                }),
                             ],
                           ),
                         ],

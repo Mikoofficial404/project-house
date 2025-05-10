@@ -168,7 +168,7 @@ class _HomePageState extends State<HomePage> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => DetailPage()),
+                                MaterialPageRoute(builder: (context) => DetailPage(kosan: kosan)),
                               );
                             },
                             child: Row(
@@ -240,19 +240,62 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       ),
                                       const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          Icon(Icons.star, color: Colors.yellow),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            '4.5',
-                                            style: blackTextStyle.copyWith(
-                                              fontSize: 10,
-                                              fontWeight: light,
-                                            ),
+                                      // Display availability status
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: kosan.isAvailable ? Colors.green : Colors.red,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          kosan.isAvailable ? 'Tersedia' : 'Tidak Tersedia',
+                                          style: whiteTextStyle.copyWith(
+                                            fontSize: 10,
+                                            fontWeight: medium,
                                           ),
-                                        ],
+                                        ),
                                       ),
+                                      const SizedBox(height: 8),
+                                      if (kosan.fasilitas.isNotEmpty)
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 4,
+                                          children: kosan.fasilitas.take(2).map((facilityStr) {
+                                            IconData icon;
+                                            if (facilityStr.toLowerCase().contains('living') || 
+                                                facilityStr.toLowerCase().contains('ruang tamu')) {
+                                              icon = Icons.weekend;
+                                            } else if (facilityStr.toLowerCase().contains('bed') || 
+                                                     facilityStr.toLowerCase().contains('kamar tidur') || 
+                                                     facilityStr.toLowerCase().contains('tidur')) {
+                                              icon = Icons.bed;
+                                            } else if (facilityStr.toLowerCase().contains('dining') || 
+                                                     facilityStr.toLowerCase().contains('makan')) {
+                                              icon = Icons.restaurant;
+                                            } else if (facilityStr.toLowerCase().contains('kitchen') || 
+                                                     facilityStr.toLowerCase().contains('dapur')) {
+                                              icon = Icons.kitchen;
+                                            } else if (facilityStr.toLowerCase().contains('wifi') || 
+                                                     facilityStr.toLowerCase().contains('internet')) {
+                                              icon = Icons.wifi;
+                                            } else if (facilityStr.toLowerCase().contains('ac') || 
+                                                     facilityStr.toLowerCase().contains('air')) {
+                                              icon = Icons.ac_unit;
+                                            } else {
+                                              icon = Icons.home;
+                                            }
+                                            
+                                            return Chip(
+                                              avatar: Icon(icon, size: 20),
+                                              label: Text(
+                                                facilityStr,
+                                                style: TextStyle(fontSize: 10),
+                                              ),
+                                              padding: EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+                                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            );
+                                          }).toList(),
+                                        ),
                                     ],
                                   ),
                                 ),
