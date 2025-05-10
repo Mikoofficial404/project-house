@@ -6,7 +6,7 @@ import 'package:project_house/shared/theme.dart';
 import 'package:project_house/mobile/auth_services.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const   LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();

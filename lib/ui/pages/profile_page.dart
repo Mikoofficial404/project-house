@@ -72,15 +72,13 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 50),
-            Text(
-              'Profile',
-              style: blackTextStyle.copyWith(fontSize: 30, fontWeight: black),
-            ),
-            const SizedBox(height: 20),
             Center(
               child: const CircleAvatar(
                 radius: 50,
