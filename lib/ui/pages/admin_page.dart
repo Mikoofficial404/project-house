@@ -354,7 +354,7 @@ class _AdminPageState extends State<AdminPage> {
                   SizedBox(height: 15),
                   TextFormField(
                     controller: _noWaController,
-                    decoration: InputDecoration(labelText: 'No WhatsApp Pemiliki  '),
+                    decoration: InputDecoration(labelText: 'No WhatsApp Pemiliki'),
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -396,12 +396,10 @@ class _AdminPageState extends State<AdminPage> {
               child: Text('Simpan'),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  // Combine nama and deskripsi for the deskripsi field
                   String fullDeskripsi = _namaController.text;
                   if (_deskripsiController.text.isNotEmpty) {
                     fullDeskripsi += '\n' + _deskripsiController.text;
                   }
-
                   Kosan newKosan = Kosan(
                     id: DateTime.now().millisecondsSinceEpoch.toString(),
                     imageUrl: _imageUrlController.text,

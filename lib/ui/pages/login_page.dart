@@ -37,16 +37,10 @@ class _LoginPageState extends State<LoginPage> {
         if (emailController.text.trim().toLowerCase() == 'admin@admin.com') {
           Navigator.pushReplacementNamed(context, '/admin');
         } else {
-          // Navigate to regular user home page
-          Navigator.pushReplacementNamed(
-            // ignore: use_build_context_synchronously
-            context,
-            '/home',
-          );
+          Navigator.pushReplacementNamed(context, '/home');
         }
       } on FirebaseAuthException catch (e) {
         showDialog(
-          // ignore: use_build_context_synchronously
           context: context,
           builder:
               (context) => AlertDialog(
@@ -191,10 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                     padding: EdgeInsets.zero,
                   ),
                   onPressed: () {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      '/signup',
-                    ); // Navigasi ke halaman signup
+                    Navigator.pushReplacementNamed(context, '/signup');
                   },
                   child: Text(
                     'Sign Up',

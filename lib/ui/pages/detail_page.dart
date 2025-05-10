@@ -9,8 +9,7 @@ import 'package:project_house/models/kosan.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DetailPage extends StatefulWidget {
-  final Kosan? kosan; // Make it optional for now to maintain backward compatibility
-  
+  final Kosan? kosan; 
   const DetailPage({super.key, this.kosan});
 
   @override
@@ -18,22 +17,19 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  // Function to launch WhatsApp with the given phone number
   Future<void> _launchWhatsApp(int phoneNumber) async {
-    // Format the phone number (remove any leading zeros and add country code if needed)
+
     String formattedNumber = phoneNumber.toString();
     if (formattedNumber.startsWith('0')) {
       formattedNumber = '62${formattedNumber.substring(1)}';
     } else if (!formattedNumber.startsWith('62')) {
       formattedNumber = '62$formattedNumber';
     }
-    
-    // Create the WhatsApp URL
+  
     final Uri whatsappUrl = Uri.parse('https://wa.me/$formattedNumber');
     
-    // Launch the URL
     if (!await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not launch WhatsApp');
+      throw Exception('Tidak Bisa Buka WhatsApp');
     }
   }
   String content =
@@ -47,7 +43,6 @@ class _DetailPageState extends State<DetailPage> {
   ];
   @override
   Widget build(BuildContext context) {
-    // Use the kosan data if available, otherwise use default values
     final kosan = widget.kosan;
     
     return Scaffold(
@@ -122,7 +117,6 @@ class _DetailPageState extends State<DetailPage> {
                                 ),
                               ),
                               SizedBox(height: 5),
-                              // Display availability status
                               Container(
                                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
@@ -365,11 +359,9 @@ class _DetailPageState extends State<DetailPage> {
                       Center(
                         child: GFButton(
                           onPressed: () {
-                            // Get the WhatsApp number from the kosan model
                             if (kosan != null && kosan.noWa > 0) {
                               _launchWhatsApp(kosan.noWa);
                             } else {
-                              // Show a snackbar if no WhatsApp number is available
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Nomor WhatsApp tidak tersedia'),

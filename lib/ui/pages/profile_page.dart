@@ -52,209 +52,232 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   @override
+  void dispose() {
+    emailControllers.dispose();
+    currentPasswordControllers.dispose();
+    newPasswordControllers.dispose();
+    super.dispose();
+  }
+
+  void updatePassword() async {
+    try {
+      await authService.value.resetPasswordFromCurrentPassword(
+        currentPassword: currentPasswordControllers.text,
+        newPassword: newPasswordControllers.text,
+        email: emailControllers.text,
+      );
+    } catch (e) {}
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
-        children: [
-          const SizedBox(height: 50),
-          Text(
-            'Profile',
-            style: blackTextStyle.copyWith(fontSize: 30, fontWeight: black),
-          ),
-          const SizedBox(height: 20),
-          Center(
-            child: const CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage('assets/images/circle_avatar.png'),
+          children: [
+            const SizedBox(height: 50),
+            Text(
+              'Profile',
+              style: blackTextStyle.copyWith(fontSize: 30, fontWeight: black),
             ),
-          ),
+            const SizedBox(height: 20),
+            Center(
+              child: const CircleAvatar(
+                radius: 50,
+                backgroundImage: AssetImage('assets/images/circle_avatar.png'),
+              ),
+            ),
 
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Email',
-                  style: blackTextStyle.copyWith(
-                    fontSize: 20,
-                    fontWeight: bold,
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Email',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 20,
+                      fontWeight: bold,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: TextField(
-              controller: emailControllers,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                label: Text(
-                  'Email',
-                  style: greyTextStyle.copyWith(
-                    fontSize: 12,
-                    fontWeight: regular,
-                  ),
-                ),
-                suffixIcon: Icon(Icons.supervised_user_circle_sharp),
+                ],
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Text(
-                  'Current Password',
-                  style: blackTextStyle.copyWith(
-                    fontSize: 20,
-                    fontWeight: bold,
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: TextField(
+                controller: emailControllers,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: TextFormField(
-              controller: currentPasswordControllers,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                label: Text(
-                  'Current Password',
-                  style: greyTextStyle.copyWith(
-                    fontSize: 12,
-                    fontWeight: regular,
+                  label: Text(
+                    'Email',
+                    style: greyTextStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: regular,
+                    ),
                   ),
+                  suffixIcon: Icon(Icons.email),
                 ),
-                suffixIcon: Icon(Icons.email),
               ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Email Tidak Boleh Kosong';
-                }
-                if (!value.contains('@') || value.contains(',')) {
-                  return 'Email Tidak Valid';
-                }
-                return null;
-              },
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Text(
+                    'Current Password',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 20,
+                      fontWeight: bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: TextFormField(
+                controller: currentPasswordControllers,
+                obscureText: isObscure,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  label: Text(
+                    'Current Password',
+                    style: greyTextStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: regular,
+                    ),
+                  ),
+                  suffixIcon: GestureDetector(
+                    onTap: () {
+                      toggleObsecure();
+                    },
+                    child: Icon(
+                      isObscure ? Icons.visibility_off : Icons.visibility,
+                    ),
+                  ),
+                ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Password Tidak Boleh Kosong';
+                  }
+                  return null;
+                },
+              ),
+            ),
 
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Text(
-                  'New Password',
-                  style: blackTextStyle.copyWith(
-                    fontSize: 20,
-                    fontWeight: bold,
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Text(
+                    'New Password',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 20,
+                      fontWeight: bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: TextFormField(
+                controller: newPasswordControllers,
+                obscureText: isObscure,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  label: Text(
+                    'New Password',
+                    style: greyTextStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: regular,
+                    ),
+                  ),
+                  suffixIcon: GestureDetector(
+                    onTap: () {
+                      toggleObsecure();
+                    },
+                    child: Icon(
+                      isObscure ? Icons.visibility_off : Icons.visibility,
+                    ),
                   ),
                 ),
-              ],
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Password Tidak Boleh Kosong';
+                  }
+                  return null;
+                },
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: TextFormField(
-              controller: newPasswordControllers,
-              obscureText: isObscure,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
+            const SizedBox(height: 50),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await authService.value.resetPasswordFromCurrentPassword(
+                    currentPassword: currentPasswordControllers.text,
+                    newPassword: newPasswordControllers.text,
+                    email: emailControllers.text,
+                  );
+                } catch (e) {
+                  throw Error();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: purpleColor,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                label: Text(
-                  'New Password',
-                  style: greyTextStyle.copyWith(
-                    fontSize: 12,
-                    fontWeight: regular,
-                  ),
-                ),
-                suffixIcon: GestureDetector(
-                  onTap: () {
-                    toggleObsecure();
-                  },
-                  child: Icon(
-                    isObscure ? Icons.visibility_off : Icons.visibility,
+              ),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
+                child: Text(
+                  'Save Changes',
+                  style: whiteTextSF.copyWith(
+                    fontSize: 16,
+                    fontWeight: extraBold,
                   ),
                 ),
               ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Password Tidak Boleh Kosong';
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await authService.value.signOut();
+                  // ignore: use_build_context_synchronously
+                  Navigator.pushReplacementNamed(context, '/login');
+                } catch (e) {
+                  throw Error();
                 }
-                return null;
               },
-            ),
-          ),
-          const SizedBox(height: 50),
-          ElevatedButton(
-            onPressed: () async {
-              try {
-                await authService.value.resetPasswordFromCurrentPassword(
-                  currentPassword: currentPasswordControllers.text,
-                  newPassword: newPasswordControllers.text,
-                  email: emailControllers.text,
-                );
-              } catch (e) {
-                throw Error();
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: purpleColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
               ),
-            ),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
-              child: Text(
-                'Save Changes',
-                style: whiteTextSF.copyWith(
-                  fontSize: 16,
-                  fontWeight: extraBold,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
+                child: Text(
+                  'Logout',
+                  style: whiteTextSF.copyWith(
+                    fontSize: 16,
+                    fontWeight: extraBold,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () async {
-              try {
-                await authService.value.signOut();
-                // ignore: use_build_context_synchronously
-                Navigator.pushReplacementNamed(context, '/login');
-              } catch (e) {
-                throw Error();
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
-              child: Text(
-                'Logout',
-                style: whiteTextSF.copyWith(
-                  fontSize: 16,
-                  fontWeight: extraBold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,

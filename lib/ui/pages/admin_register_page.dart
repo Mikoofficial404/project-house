@@ -37,10 +37,11 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
       });
 
       try {
-        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
+            );
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -52,7 +53,7 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
         Navigator.pushReplacementNamed(context, '/admin');
       } on FirebaseAuthException catch (e) {
         String errorMessage = 'An error occurred during registration';
-        
+
         if (e.code == 'weak-password') {
           errorMessage = 'The password provided is too weak';
         } else if (e.code == 'email-already-in-use') {
@@ -60,12 +61,9 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
         } else if (e.code == 'invalid-email') {
           errorMessage = 'Invalid email format';
         }
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -89,133 +87,136 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
         title: Text('Register Admin'),
         backgroundColor: purpleColor,
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(height: 20),
-                    Text(
-                      'Create Admin Account',
-                      style: blackTextStyle.copyWith(
-                        fontSize: 24,
-                        fontWeight: bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 40),
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter an email';
-                        }
-                        if (!value.contains('@') || !value.contains('.')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _isObscure,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isObscure ? Icons.visibility_off : Icons.visibility,
-                          ),
-                          onPressed: _toggleObscure,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a password';
-                        }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      obscureText: _isObscureConfirm,
-                      decoration: InputDecoration(
-                        labelText: 'Confirm Password',
-                        prefixIcon: Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isObscureConfirm ? Icons.visibility_off : Icons.visibility,
-                          ),
-                          onPressed: _toggleObscureConfirm,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please confirm your password';
-                        }
-                        if (value != _passwordController.text) {
-                          return 'Passwords do not match';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: _registerAdmin,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: purpleColor,
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text(
-                        'Register Admin',
-                        style: whiteTextSF.copyWith(
-                          fontSize: 16,
+      body:
+          _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(height: 20),
+                      Text(
+                        'Create Admin Account',
+                        style: blackTextStyle.copyWith(
+                          fontSize: 24,
                           fontWeight: bold,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    SizedBox(height: 20),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/login');
-                      },
-                      child: Text(
-                        'Already have an account? Login',
-                        style: blueTextStyle.copyWith(
-                          fontWeight: medium,
+                      SizedBox(height: 40),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          prefixIcon: Icon(Icons.email),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter an email';
+                          }
+                          if (!value.contains('@') || !value.contains('.')) {
+                            return 'Please enter a valid email';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 20),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: _isObscure,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: Icon(Icons.lock),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isObscure
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                            onPressed: _toggleObscure,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a password';
+                          }
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 20),
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: _isObscureConfirm,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          prefixIcon: Icon(Icons.lock),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isObscureConfirm
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                            onPressed: _toggleObscureConfirm,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm your password';
+                          }
+                          if (value != _passwordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 30),
+                      ElevatedButton(
+                        onPressed: _registerAdmin,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: purpleColor,
+                          padding: EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          'Register Admin',
+                          style: whiteTextSF.copyWith(
+                            fontSize: 16,
+                            fontWeight: bold,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 20),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacementNamed(context, '/login');
+                        },
+                        child: Text(
+                          'Already have an account? Login',
+                          style: blueTextStyle.copyWith(fontWeight: medium),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
     );
   }
 
