@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project_house/models/kosan.dart';
 import 'package:project_house/services/kosan_service.dart';
@@ -15,11 +14,10 @@ class AdminPage extends StatefulWidget {
 class _AdminPageState extends State<AdminPage> {
   final KosanService _kosanService = KosanService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+
   @override
   void initState() {
     super.initState();
-    // Check if user is admin
     checkAdminStatus();
   }
 
@@ -62,7 +60,7 @@ class _AdminPageState extends State<AdminPage> {
           }
 
           List<Kosan> kosans = snapshot.data!;
-          
+
           return ListView.builder(
             itemCount: kosans.length,
             itemBuilder: (context, index) {
@@ -70,35 +68,36 @@ class _AdminPageState extends State<AdminPage> {
               return Card(
                 margin: EdgeInsets.all(8),
                 child: ListTile(
-                  leading: kosan.imageUrl.isNotEmpty
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            kosan.imageUrl,
+                  leading:
+                      kosan.imageUrl.isNotEmpty
+                          ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              kosan.imageUrl,
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 60,
+                                  height: 60,
+                                  color: Colors.grey[300],
+                                  child: Icon(Icons.error),
+                                );
+                              },
+                            ),
+                          )
+                          : Container(
                             width: 60,
                             height: 60,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                width: 60,
-                                height: 60,
-                                color: Colors.grey[300],
-                                child: Icon(Icons.error),
-                              );
-                            },
+                            color: Colors.grey[300],
+                            child: Icon(Icons.home),
                           ),
-                        )
-                      : Container(
-                          width: 60,
-                          height: 60,
-                          color: Colors.grey[300],
-                          child: Icon(Icons.home),
-                        ),
                   title: Text(
-                    kosan.deskripsi.split('\n').first, // Use first line as title
-                    style: blackTextStyle.copyWith(
-                      fontWeight: bold,
-                    ),
+                    kosan.deskripsi
+                        .split('\n')
+                        .first, 
+                    style: blackTextStyle.copyWith(fontWeight: bold),
                   ),
                   subtitle: Text(
                     'Rp ${kosan.harga.toString()} - ${kosan.lokasi}',
@@ -148,13 +147,25 @@ class _AdminPageState extends State<AdminPage> {
     final TextEditingController _lokasiController = TextEditingController();
     final TextEditingController _hargaController = TextEditingController();
     final TextEditingController _fasilitasController = TextEditingController();
-    final TextEditingController _bedroomsController = TextEditingController(text: '2');
-    final TextEditingController _bathroomsController = TextEditingController(text: '2');
-    final TextEditingController _kitchensController = TextEditingController(text: '1');
-    final TextEditingController _latitudeController = TextEditingController(text: '-6.200000');
-    final TextEditingController _longitudeController = TextEditingController(text: '106.816666');
-    
-    // Track room availability
+    final TextEditingController _bedroomsController = TextEditingController(
+      text: '2',
+    );
+    final TextEditingController _bathroomsController = TextEditingController(
+      text: '2',
+    );
+    final TextEditingController _kitchensController = TextEditingController(
+      text: '1',
+    );
+    final TextEditingController _noWaController = TextEditingController(
+      text: '0',
+    );
+    final TextEditingController _latitudeController = TextEditingController(
+      text: '-6.200000',
+    );
+    final TextEditingController _longitudeController = TextEditingController(
+      text: '106.816666',
+    );
+
     bool _isAvailable = true;
 
     showDialog(
@@ -208,9 +219,7 @@ class _AdminPageState extends State<AdminPage> {
                   ),
                   TextFormField(
                     controller: _lokasiController,
-                    decoration: InputDecoration(
-                      labelText: 'Lokasi',
-                    ),
+                    decoration: InputDecoration(labelText: 'Lokasi'),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Lokasi tidak boleh kosong';
@@ -220,9 +229,7 @@ class _AdminPageState extends State<AdminPage> {
                   ),
                   TextFormField(
                     controller: _hargaController,
-                    decoration: InputDecoration(
-                      labelText: 'Harga (Rp)',
-                    ),
+                    decoration: InputDecoration(labelText: 'Harga (Rp)'),
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -314,9 +321,7 @@ class _AdminPageState extends State<AdminPage> {
                       Expanded(
                         child: TextFormField(
                           controller: _latitudeController,
-                          decoration: InputDecoration(
-                            labelText: 'Latitude',
-                          ),
+                          decoration: InputDecoration(labelText: 'Latitude'),
                           keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -334,15 +339,28 @@ class _AdminPageState extends State<AdminPage> {
                   SizedBox(height: 10),
                   TextFormField(
                     controller: _longitudeController,
-                    decoration: InputDecoration(
-                      labelText: 'Longitude',
-                    ),
+                    decoration: InputDecoration(labelText: 'Longitude'),
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Longitude tidak boleh kosong';
                       }
                       if (double.tryParse(value) == null) {
+                        return 'Harus berupa angka';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 15),
+                  TextFormField(
+                    controller: _noWaController,
+                    decoration: InputDecoration(labelText: 'No WhatsApp Pemiliki  '),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'No WhatsApp tidak boleh kosong';
+                      }
+                      if (int.tryParse(value) == null) {
                         return 'Harus berupa angka';
                       }
                       return null;
@@ -374,9 +392,7 @@ class _AdminPageState extends State<AdminPage> {
               },
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: purpleColor,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: purpleColor),
               child: Text('Simpan'),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
@@ -385,20 +401,25 @@ class _AdminPageState extends State<AdminPage> {
                   if (_deskripsiController.text.isNotEmpty) {
                     fullDeskripsi += '\n' + _deskripsiController.text;
                   }
-                  
+
                   Kosan newKosan = Kosan(
                     id: DateTime.now().millisecondsSinceEpoch.toString(),
                     imageUrl: _imageUrlController.text,
                     deskripsi: fullDeskripsi,
                     lokasi: _lokasiController.text,
                     harga: int.parse(_hargaController.text),
-                    fasilitas: _fasilitasController.text.split(',').map((e) => e.trim()).toList(),
+                    fasilitas:
+                        _fasilitasController.text
+                            .split(',')
+                            .map((e) => e.trim())
+                            .toList(),
                     bedrooms: int.parse(_bedroomsController.text),
                     bathrooms: int.parse(_bathroomsController.text),
                     kitchens: int.parse(_kitchensController.text),
                     latitude: double.parse(_latitudeController.text),
                     longitude: double.parse(_longitudeController.text),
-                    isAvailable: _isAvailable, // Set availability
+                    noWa: int.parse(_noWaController.text),
+                    isAvailable: _isAvailable,
                   );
 
                   _kosanService.createKosan(newKosan);
@@ -414,24 +435,51 @@ class _AdminPageState extends State<AdminPage> {
 
   void _showEditKosanDialog(BuildContext context, Kosan kosan) {
     final _formKey = GlobalKey<FormState>();
-    
+
     List<String> descriptionParts = kosan.deskripsi.split('\n');
     String name = descriptionParts.first;
-    String description = descriptionParts.length > 1 ? descriptionParts.sublist(1).join('\n') : '';
-    
-    final TextEditingController _imageUrlController = TextEditingController(text: kosan.imageUrl);
-    final TextEditingController _namaController = TextEditingController(text: name);
-    final TextEditingController _deskripsiController = TextEditingController(text: description);
-    final TextEditingController _lokasiController = TextEditingController(text: kosan.lokasi);
-    final TextEditingController _hargaController = TextEditingController(text: kosan.harga.toString());
-    final TextEditingController _fasilitasController = TextEditingController(text: kosan.fasilitas.join(', '));
-    final TextEditingController _bedroomsController = TextEditingController(text: kosan.bedrooms.toString());
-    final TextEditingController _bathroomsController = TextEditingController(text: kosan.bathrooms.toString());
-    final TextEditingController _kitchensController = TextEditingController(text: kosan.kitchens.toString());
-    final TextEditingController _latitudeController = TextEditingController(text: kosan.latitude.toString());
-    final TextEditingController _longitudeController = TextEditingController(text: kosan.longitude.toString());
-    
-    // Track room availability
+    String description =
+        descriptionParts.length > 1
+            ? descriptionParts.sublist(1).join('\n')
+            : '';
+
+    final TextEditingController _imageUrlController = TextEditingController(
+      text: kosan.imageUrl,
+    );
+    final TextEditingController _namaController = TextEditingController(
+      text: name,
+    );
+    final TextEditingController _deskripsiController = TextEditingController(
+      text: description,
+    );
+    final TextEditingController _lokasiController = TextEditingController(
+      text: kosan.lokasi,
+    );
+    final TextEditingController _hargaController = TextEditingController(
+      text: kosan.harga.toString(),
+    );
+    final TextEditingController _fasilitasController = TextEditingController(
+      text: kosan.fasilitas.join(', '),
+    );
+    final TextEditingController _bedroomsController = TextEditingController(
+      text: kosan.bedrooms.toString(),
+    );
+    final TextEditingController _bathroomsController = TextEditingController(
+      text: kosan.bathrooms.toString(),
+    );
+    final TextEditingController _kitchensController = TextEditingController(
+      text: kosan.kitchens.toString(),
+    );
+    final TextEditingController _noWaController = TextEditingController(
+      text: kosan.noWa.toString(),
+    );
+    final TextEditingController _latitudeController = TextEditingController(
+      text: kosan.latitude.toString(),
+    );
+    final TextEditingController _longitudeController = TextEditingController(
+      text: kosan.longitude.toString(),
+    );
+
     bool _isAvailable = kosan.isAvailable;
 
     showDialog(
@@ -449,9 +497,7 @@ class _AdminPageState extends State<AdminPage> {
                     children: [
                       TextFormField(
                         controller: _imageUrlController,
-                        decoration: InputDecoration(
-                          labelText: 'URL Gambar',
-                        ),
+                        decoration: InputDecoration(labelText: 'URL Gambar'),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'URL Gambar tidak boleh kosong';
@@ -464,9 +510,7 @@ class _AdminPageState extends State<AdminPage> {
                       ),
                       TextFormField(
                         controller: _namaController,
-                        decoration: InputDecoration(
-                          labelText: 'Nama Kosan',
-                        ),
+                        decoration: InputDecoration(labelText: 'Nama Kosan'),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Nama kosan tidak boleh kosong';
@@ -484,9 +528,7 @@ class _AdminPageState extends State<AdminPage> {
                       ),
                       TextFormField(
                         controller: _lokasiController,
-                        decoration: InputDecoration(
-                          labelText: 'Lokasi',
-                        ),
+                        decoration: InputDecoration(labelText: 'Lokasi'),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Lokasi tidak boleh kosong';
@@ -496,9 +538,7 @@ class _AdminPageState extends State<AdminPage> {
                       ),
                       TextFormField(
                         controller: _hargaController,
-                        decoration: InputDecoration(
-                          labelText: 'Harga (Rp)',
-                        ),
+                        decoration: InputDecoration(labelText: 'Harga (Rp)'),
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -588,6 +628,24 @@ class _AdminPageState extends State<AdminPage> {
                           SizedBox(width: 10),
                           Expanded(
                             child: TextFormField(
+                              controller: _noWaController,
+                              decoration: InputDecoration(
+                                labelText: 'No WhatsApp Pemilik',
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'No WhatsApp tidak boleh kosong';
+                                }
+                                if (int.tryParse(value) == null) {
+                                  return 'Harus berupa angka';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: TextFormField(
                               controller: _latitudeController,
                               decoration: InputDecoration(
                                 labelText: 'Latitude',
@@ -609,9 +667,7 @@ class _AdminPageState extends State<AdminPage> {
                       SizedBox(height: 10),
                       TextFormField(
                         controller: _longitudeController,
-                        decoration: InputDecoration(
-                          labelText: 'Longitude',
-                        ),
+                        decoration: InputDecoration(labelText: 'Longitude'),
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -624,7 +680,6 @@ class _AdminPageState extends State<AdminPage> {
                         },
                       ),
                       SizedBox(height: 15),
-                      // Room availability checkbox
                       Row(
                         children: [
                           Checkbox(
@@ -650,31 +705,33 @@ class _AdminPageState extends State<AdminPage> {
                   },
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: purpleColor,
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: purpleColor),
                   child: Text('Simpan'),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      // Combine nama and deskripsi for the deskripsi field
                       String fullDeskripsi = _namaController.text;
                       if (_deskripsiController.text.isNotEmpty) {
                         fullDeskripsi += '\n' + _deskripsiController.text;
                       }
-                      
+
                       Kosan updatedKosan = Kosan(
                         id: kosan.id,
                         imageUrl: _imageUrlController.text,
                         deskripsi: fullDeskripsi,
                         lokasi: _lokasiController.text,
                         harga: int.parse(_hargaController.text),
-                        fasilitas: _fasilitasController.text.split(',').map((e) => e.trim()).toList(),
+                        fasilitas:
+                            _fasilitasController.text
+                                .split(',')
+                                .map((e) => e.trim())
+                                .toList(),
                         bedrooms: int.parse(_bedroomsController.text),
                         bathrooms: int.parse(_bathroomsController.text),
                         kitchens: int.parse(_kitchensController.text),
+                        noWa: int.parse(_noWaController.text),
                         latitude: double.parse(_latitudeController.text),
                         longitude: double.parse(_longitudeController.text),
-                        isAvailable: _isAvailable, // Set availability
+                        isAvailable: _isAvailable,
                       );
 
                       _kosanService.updateKosan(updatedKosan);
@@ -684,7 +741,7 @@ class _AdminPageState extends State<AdminPage> {
                 ),
               ],
             );
-          }
+          },
         );
       },
     );
@@ -727,10 +784,7 @@ class _AdminPageState extends State<AdminPage> {
                     fontSize: 16,
                   ),
                 ),
-                Text(
-                  kosan.deskripsi.split('\n').first,
-                  style: blackTextStyle,
-                ),
+                Text(kosan.deskripsi.split('\n').first, style: blackTextStyle),
                 SizedBox(height: 8),
                 Text(
                   'Deskripsi:',
@@ -739,10 +793,7 @@ class _AdminPageState extends State<AdminPage> {
                     fontSize: 16,
                   ),
                 ),
-                Text(
-                  kosan.deskripsi,
-                  style: blackTextStyle,
-                ),
+                Text(kosan.deskripsi, style: blackTextStyle),
                 SizedBox(height: 8),
                 Text(
                   'Lokasi:',
@@ -751,10 +802,7 @@ class _AdminPageState extends State<AdminPage> {
                     fontSize: 16,
                   ),
                 ),
-                Text(
-                  kosan.lokasi,
-                  style: blackTextStyle,
-                ),
+                Text(kosan.lokasi, style: blackTextStyle),
                 SizedBox(height: 8),
                 Text(
                   'Harga:',
@@ -763,10 +811,7 @@ class _AdminPageState extends State<AdminPage> {
                     fontSize: 16,
                   ),
                 ),
-                Text(
-                  'Rp ${kosan.harga.toString()}',
-                  style: blackTextStyle,
-                ),
+                Text('Rp ${kosan.harga.toString()}', style: blackTextStyle),
                 SizedBox(height: 8),
                 Text(
                   'Fasilitas:',
@@ -775,30 +820,18 @@ class _AdminPageState extends State<AdminPage> {
                     fontSize: 16,
                   ),
                 ),
-                Text(
-                  kosan.fasilitas.join(', '),
-                  style: blackTextStyle,
-                ),
+                Text(kosan.fasilitas.join(', '), style: blackTextStyle),
                 SizedBox(height: 8),
-                Text(
-                  'Kamar Tidur: ${kosan.bedrooms}',
-                  style: blackTextStyle,
-                ),
-                Text(
-                  'Kamar Mandi: ${kosan.bathrooms}',
-                  style: blackTextStyle,
-                ),
-                Text(
-                  'Dapur: ${kosan.kitchens}',
-                  style: blackTextStyle,
-                ),
+                Text('Kamar Tidur: ${kosan.bedrooms}', style: blackTextStyle),
+                Text('Kamar Mandi: ${kosan.bathrooms}', style: blackTextStyle),
+                Text('Dapur: ${kosan.kitchens}', style: blackTextStyle),
                 SizedBox(height: 8),
                 Text(
                   'Koordinat: ${kosan.latitude}, ${kosan.longitude}',
                   style: blackTextStyle,
                 ),
+                Text('No WhatsApp: ${kosan.noWa}', style: blackTextStyle),
                 SizedBox(height: 8),
-                // Availability status
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -806,7 +839,9 @@ class _AdminPageState extends State<AdminPage> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
-                    kosan.isAvailable ? 'Kamar Tersedia' : 'Kamar Tidak Tersedia',
+                    kosan.isAvailable
+                        ? 'Kamar Tersedia'
+                        : 'Kamar Tidak Tersedia',
                     style: whiteTextStyle.copyWith(
                       fontSize: 14,
                       fontWeight: medium,
@@ -844,9 +879,7 @@ class _AdminPageState extends State<AdminPage> {
               },
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               child: Text('Hapus'),
               onPressed: () {
                 _kosanService.deleteKosan(kosanId);

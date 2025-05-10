@@ -34,15 +34,8 @@ class _LoginPageState extends State<LoginPage> {
           password: passwordController.text,
         );
 
-        // Check if the user is an admin (for simplicity, we're checking by email)
-        // You can implement a more secure admin check using Firestore or Firebase Auth custom claims
         if (emailController.text.trim().toLowerCase() == 'admin@admin.com') {
-          // Navigate to admin page
-          Navigator.pushReplacementNamed(
-            // ignore: use_build_context_synchronously
-            context,
-            '/admin',
-          );
+          Navigator.pushReplacementNamed(context, '/admin');
         } else {
           // Navigate to regular user home page
           Navigator.pushReplacementNamed(

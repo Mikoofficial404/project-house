@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:project_house/models/kosan.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DetailPage extends StatefulWidget {
   final Kosan? kosan; // Make it optional for now to maintain backward compatibility
@@ -17,6 +18,24 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
+  // Function to launch WhatsApp with the given phone number
+  Future<void> _launchWhatsApp(int phoneNumber) async {
+    // Format the phone number (remove any leading zeros and add country code if needed)
+    String formattedNumber = phoneNumber.toString();
+    if (formattedNumber.startsWith('0')) {
+      formattedNumber = '62${formattedNumber.substring(1)}';
+    } else if (!formattedNumber.startsWith('62')) {
+      formattedNumber = '62$formattedNumber';
+    }
+    
+    // Create the WhatsApp URL
+    final Uri whatsappUrl = Uri.parse('https://wa.me/$formattedNumber');
+    
+    // Launch the URL
+    if (!await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch WhatsApp');
+    }
+  }
   String content =
       "Imagine waking up each morning in a home that truly feels like your own. Our rental house provides the space, comfort, and amenities you crave, allowing you to live life to the fullest. Whether you're a growing family, young professional, or empty-nester, this house offers the perfect blend of functionality and style to elevate your lifestyle.";
   final List<String> category = [
@@ -345,14 +364,26 @@ class _DetailPageState extends State<DetailPage> {
                       const SizedBox(height: 20),
                       Center(
                         child: GFButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            // Get the WhatsApp number from the kosan model
+                            if (kosan != null && kosan.noWa > 0) {
+                              _launchWhatsApp(kosan.noWa);
+                            } else {
+                              // Show a snackbar if no WhatsApp number is available
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Nomor WhatsApp tidak tersedia'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
                           text: "Pesan Lewat Whatsapp",
                           icon: FaIcon(
                             FontAwesomeIcons.whatsapp,
                             color: Colors.white,
                           ),
                           color: Colors.green,
-
                           size: GFSize.LARGE,
                           fullWidthButton: false,
                         ),

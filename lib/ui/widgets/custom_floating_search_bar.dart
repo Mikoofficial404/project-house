@@ -193,7 +193,7 @@ class _CustomFloatingSearchBarState extends State<CustomFloatingSearchBar> with 
           if (widget.builder != null && _isOpen)
             Container(
               constraints: BoxConstraints(
-                maxHeight: 300, // Fixed height for suggestions
+                maxHeight: 300,
                 maxWidth: widget.width ?? MediaQuery.of(context).size.width * 0.9,
               ),
               margin: EdgeInsets.symmetric(

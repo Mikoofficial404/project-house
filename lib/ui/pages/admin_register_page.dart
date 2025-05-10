@@ -37,16 +37,11 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
       });
 
       try {
-        // Create admin user with email and password
         UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
 
-        // In a real app, you would also add this user to an admin collection in Firestore
-        // or set custom claims via Firebase Admin SDK to mark them as an admin
-
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Admin account created successfully'),
@@ -54,7 +49,6 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
           ),
         );
 
-        // Navigate to admin page
         Navigator.pushReplacementNamed(context, '/admin');
       } on FirebaseAuthException catch (e) {
         String errorMessage = 'An error occurred during registration';

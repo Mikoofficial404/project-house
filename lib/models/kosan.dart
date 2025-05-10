@@ -9,8 +9,9 @@ class Kosan {
   int bathrooms;
   int kitchens;
   double latitude;
-  double longitude;
-  bool isAvailable; // Track if the room is available
+  double longitude; 
+  int noWa;
+  bool isAvailable;
 
   Kosan({
     required this.id,
@@ -24,7 +25,8 @@ class Kosan {
     this.kitchens = 1,
     this.latitude = -6.200000,
     this.longitude = 106.816666,
-    this.isAvailable = true, // Default to available
+    this.noWa = 0,
+    this.isAvailable = true, 
   });
 
   factory Kosan.fromMap(Map<String, dynamic> data, String documentId) {
@@ -40,6 +42,7 @@ class Kosan {
       kitchens: data['kitchens'] ?? 1,
       latitude: data['latitude'] ?? -6.200000,
       longitude: data['longitude'] ?? 106.816666,
+      noWa: data['noWa'] ?? 0,
       isAvailable: data['isAvailable'] ?? true,
     );
   }
@@ -56,6 +59,7 @@ class Kosan {
       'kitchens': kitchens,
       'latitude': latitude,
       'longitude': longitude,
+      'noWa': noWa,
       'isAvailable': isAvailable,
     };
   }
