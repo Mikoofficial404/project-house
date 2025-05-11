@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:project_house/models/kosan.dart';
 import 'package:project_house/services/favorite_service.dart';
-import 'package:project_house/services/kosan_service.dart';
 import 'package:project_house/ui/pages/detail_page.dart';
 import 'package:project_house/ui/pages/home_page.dart';
 import 'package:project_house/ui/pages/profile_setting.dart';

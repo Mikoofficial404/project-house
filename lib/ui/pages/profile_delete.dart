@@ -29,7 +29,6 @@ class _ProfileDeleteState extends State<ProfileDelete> {
   final emailControllers = TextEditingController();
   final currentPasswordControllers = TextEditingController();
 
-
   bool isObscure = true;
 
   void toggleObsecure() {
@@ -174,7 +173,7 @@ class _ProfileDeleteState extends State<ProfileDelete> {
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
-              
+
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
                 child: Text(
