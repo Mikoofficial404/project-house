@@ -13,10 +13,16 @@ This project is made with
 - CRUD Data Kosan
 - Services Chat 
 - Auth Sign up and Login
-- Auth Goggle Sign  
+- Auth Goggle Sign 
+
+## Tech Stack 💻 
+**Client:** Flutter 
+
+**Server:** Firebase 
 
 
-## Run Locally  
+
+## Run Locally 🌍  
 
 Clone the project  
 
