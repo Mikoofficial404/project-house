@@ -45,12 +45,16 @@ app.*.map.json
 /android/app/release
 
 # Firebase Config Files (important to ignore these files)
-google-services.json
-GoogleService-Info.plist
+**/google-services.json
+**/GoogleService-Info.plist
 firebase.json
+.firebaserc
+firebase-debug.log
 
-
-# Ignore Firebase credentials
+# Ignore Firebase credentials and config files
 lib/firebase_options.dart
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
 
 
