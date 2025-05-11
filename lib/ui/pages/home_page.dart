@@ -5,7 +5,6 @@ import 'package:project_house/shared/theme.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:project_house/ui/pages/customer_services.dart';
 import 'package:project_house/ui/pages/detail_page.dart';
-import 'package:project_house/ui/pages/profile_page.dart';
 import 'package:project_house/ui/pages/profile_setting.dart';
 import 'package:project_house/ui/pages/search_page.dart';
 import 'package:project_house/services/kosan_service.dart';
