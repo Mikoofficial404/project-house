@@ -5,20 +5,18 @@ import 'package:project_house/ui/pages/profile_setting.dart';
 import 'package:project_house/ui/pages/search_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:project_house/mobile/auth_services.dart';
-import 'package:project_house/ui/pages/login_page.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class ProfileDelete extends StatefulWidget {
+  const ProfileDelete({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<ProfileDelete> createState() => _ProfileDeleteState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfileDeleteState extends State<ProfileDelete> {
   final List<Widget> list = const [Text('Home'), Text('Exprole'), Text('User')];
 
   int _selectedIndex = 2;
-  bool _isLoading = false;
 
   List<dynamic> menuItems = [
     {'icon': 'assets/images/home.svg', 'label': 'Home'},
@@ -30,19 +28,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   final emailControllers = TextEditingController();
   final currentPasswordControllers = TextEditingController();
-  final newPasswordControllers = TextEditingController();
+
 
   bool isObscure = true;
-
-  @override
-  void initState() {
-    super.initState();
-    // Pre-fill the email field with the user's email
-    final user = authService.value.currenctUser;
-    if (user != null && user.email != null) {
-      emailControllers.text = user.email!;
-    }
-  }
 
   void toggleObsecure() {
     setState(() {
@@ -68,16 +56,14 @@ class _ProfilePageState extends State<ProfilePage> {
   void dispose() {
     emailControllers.dispose();
     currentPasswordControllers.dispose();
-    newPasswordControllers.dispose();
     super.dispose();
   }
 
-  void updatePassword() async {
+  void deleteAccount() async {
     try {
-      await authService.value.resetPasswordFromCurrentPassword(
-        currentPassword: currentPasswordControllers.text,
-        newPassword: newPasswordControllers.text,
+      await authService.value.deleteAccount(
         email: emailControllers.text,
+        password: currentPasswordControllers.text,
       );
     } catch (e) {}
   }
@@ -89,13 +75,6 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Center(
-              child: const CircleAvatar(
-                radius: 50,
-                backgroundImage: AssetImage('assets/images/circle_avatar.png'),
-              ),
-            ),
-
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.all(16),
@@ -178,144 +157,33 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
             ),
-
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Text(
-                    'New Password',
-                    style: blackTextStyle.copyWith(
-                      fontSize: 20,
-                      fontWeight: bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextFormField(
-                controller: newPasswordControllers,
-                obscureText: isObscure,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  label: Text(
-                    'New Password',
-                    style: greyTextStyle.copyWith(
-                      fontSize: 12,
-                      fontWeight: regular,
-                    ),
-                  ),
-                  suffixIcon: GestureDetector(
-                    onTap: () {
-                      toggleObsecure();
-                    },
-                    child: Icon(
-                      isObscure ? Icons.visibility_off : Icons.visibility,
-                    ),
-                  ),
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Password Tidak Boleh Kosong';
-                  }
-                  return null;
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
             ElevatedButton(
-              onPressed:
-                  _isLoading
-                      ? null
-                      : () async {
-                        // Validate fields
-                        if (emailControllers.text.isEmpty ||
-                            currentPasswordControllers.text.isEmpty ||
-                            newPasswordControllers.text.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Semua field harus diisi'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-                        setState(() {
-                          _isLoading = true;
-                        });
-
-                        try {
-                          await authService.value
-                              .resetPasswordFromCurrentPassword(
-                                currentPassword:
-                                    currentPasswordControllers.text,
-                                newPassword: newPasswordControllers.text,
-                                email: emailControllers.text,
-                              );
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Password berhasil diubah'),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-
-                          await authService.value.signOut();
-                          if (!context.mounted) return;
-
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LoginPage(),
-                            ),
-                            (route) => false,
-                          );
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Gagal mengubah password: ${e.toString()}',
-                              ),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-
-                          if (mounted) {
-                            setState(() {
-                              _isLoading = false;
-                            });
-                          }
-                        }
-                      },
+              onPressed: () async {
+                try {
+                  await authService.value.deleteAccount(
+                    email: emailControllers.text,
+                    password: currentPasswordControllers.text,
+                  );
+                } catch (e) {
+                  throw Error();
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: purpleColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
+              
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 5, vertical: 15),
-                child:
-                    _isLoading
-                        ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                        : Text(
-                          'Save Changes',
-                          style: whiteTextSF.copyWith(
-                            fontSize: 16,
-                            fontWeight: extraBold,
-                          ),
-                        ),
+                child: Text(
+                  'Delete My Accounts',
+                  style: whiteTextSF.copyWith(
+                    fontSize: 16,
+                    fontWeight: extraBold,
+                  ),
+                ),
               ),
             ),
           ],

@@ -7,9 +7,10 @@ import 'package:latlong2/latlong.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:project_house/models/kosan.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:project_house/services/favorite_service.dart';
 
 class DetailPage extends StatefulWidget {
-  final Kosan? kosan; 
+  final Kosan? kosan;
   const DetailPage({super.key, this.kosan});
 
   @override
@@ -17,21 +18,70 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  Future<void> _launchWhatsApp(int phoneNumber) async {
+  final FavoriteService _favoriteService = FavoriteService();
+  bool _isFavorite = false;
+  bool _isLoading = true;
 
+  @override
+  void initState() {
+    super.initState();
+    _checkFavoriteStatus();
+  }
+
+  Future<void> _checkFavoriteStatus() async {
+    if (widget.kosan != null) {
+      final isFav = await _favoriteService.isFavorite(widget.kosan!.id);
+      setState(() {
+        _isFavorite = isFav;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (widget.kosan == null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final newStatus = await _favoriteService.toggleFavorite(widget.kosan!);
+
+    setState(() {
+      _isFavorite = newStatus;
+      _isLoading = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _isFavorite ? 'Added to favorites' : 'Removed from favorites',
+        ),
+        backgroundColor: _isFavorite ? Colors.green : Colors.red,
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
+  Future<void> _launchWhatsApp(int phoneNumber) async {
     String formattedNumber = phoneNumber.toString();
     if (formattedNumber.startsWith('0')) {
       formattedNumber = '62${formattedNumber.substring(1)}';
     } else if (!formattedNumber.startsWith('62')) {
       formattedNumber = '62$formattedNumber';
     }
-  
+
     final Uri whatsappUrl = Uri.parse('https://wa.me/$formattedNumber');
-    
+
     if (!await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication)) {
       throw Exception('Tidak Bisa Buka WhatsApp');
     }
   }
+
   String content =
       "Imagine waking up each morning in a home that truly feels like your own. Our rental house provides the space, comfort, and amenities you crave, allowing you to live life to the fullest. Whether you're a growing family, young professional, or empty-nester, this house offers the perfect blend of functionality and style to elevate your lifestyle.";
   final List<String> category = [
@@ -44,14 +94,32 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     final kosan = widget.kosan;
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text('Property Details'),
         actions: [
-          FaIcon(FontAwesomeIcons.heart),
+          IconButton(
+            icon:
+                _isLoading
+                    ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.red,
+                      ),
+                    )
+                    : FaIcon(
+                      _isFavorite
+                          ? FontAwesomeIcons.solidHeart
+                          : FontAwesomeIcons.heart,
+                      color: _isFavorite ? Colors.red : null,
+                    ),
+            onPressed: _isLoading ? null : _toggleFavorite,
+          ),
           const SizedBox(width: 20),
           FaIcon(FontAwesomeIcons.share),
           const SizedBox(width: 10),
@@ -72,21 +140,22 @@ class _DetailPageState extends State<DetailPage> {
                 SizedBox(
                   height: 200,
                   width: double.infinity,
-                  child: kosan?.imageUrl != null && kosan!.imageUrl.isNotEmpty
-                    ? Image.network(
-                        kosan.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
+                  child:
+                      kosan?.imageUrl != null && kosan!.imageUrl.isNotEmpty
+                          ? Image.network(
+                            kosan.imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                'assets/images/carsoul_images1.jpg',
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          )
+                          : Image.asset(
                             'assets/images/carsoul_images1.jpg',
                             fit: BoxFit.cover,
-                          );
-                        },
-                      )
-                    : Image.asset(
-                        'assets/images/carsoul_images1.jpg',
-                        fit: BoxFit.cover,
-                      ),
+                          ),
                 ),
                 const SizedBox(height: 16),
                 Padding(
@@ -98,7 +167,8 @@ class _DetailPageState extends State<DetailPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            kosan?.deskripsi.split('\n').first ?? 'Model Apartement in New York',
+                            kosan?.deskripsi.split('\n').first ??
+                                'Model Apartement in New York',
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.black,
@@ -118,13 +188,21 @@ class _DetailPageState extends State<DetailPage> {
                               ),
                               SizedBox(height: 5),
                               Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: kosan?.isAvailable ?? true ? Colors.green : Colors.red,
+                                  color:
+                                      kosan?.isAvailable ?? true
+                                          ? Colors.green
+                                          : Colors.red,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  kosan?.isAvailable ?? true ? 'Tersedia' : 'Tidak Tersedia',
+                                  kosan?.isAvailable ?? true
+                                      ? 'Tersedia'
+                                      : 'Tidak Tersedia',
                                   style: whiteTextStyle.copyWith(
                                     fontSize: 12,
                                     fontWeight: medium,
@@ -234,7 +312,8 @@ class _DetailPageState extends State<DetailPage> {
                                 children: [
                                   const SizedBox(height: 5),
                                   Text(
-                                    kosan?.lokasi.split(',').first ?? 'Jln. Ahmad Yani No.1',
+                                    kosan?.lokasi.split(',').first ??
+                                        'Jln. Ahmad Yani No.1',
                                     style: greyTextStyle.copyWith(
                                       fontSize: 14,
                                       fontWeight: regular,
@@ -242,8 +321,12 @@ class _DetailPageState extends State<DetailPage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    kosan?.lokasi.contains(',') == true 
-                                        ? kosan!.lokasi.split(',').skip(1).join(',').trim() 
+                                    kosan?.lokasi.contains(',') == true
+                                        ? kosan!.lokasi
+                                            .split(',')
+                                            .skip(1)
+                                            .join(',')
+                                            .trim()
                                         : 'Jakarta, Indonesia',
                                     style: greyTextStyle.copyWith(
                                       fontSize: 14,
@@ -263,7 +346,10 @@ class _DetailPageState extends State<DetailPage> {
                             height: 200,
                             child: FlutterMap(
                               options: MapOptions(
-                                center: LatLng(kosan?.latitude ?? -6.200000, kosan?.longitude ?? 106.816666),
+                                center: LatLng(
+                                  kosan?.latitude ?? -6.200000,
+                                  kosan?.longitude ?? 106.816666,
+                                ),
                                 zoom: 15.0,
                               ),
                               children: [
@@ -292,36 +378,61 @@ class _DetailPageState extends State<DetailPage> {
                             spacing: 12,
                             runSpacing: 4,
                             children: [
-                              if (kosan?.fasilitas != null && kosan!.fasilitas.isNotEmpty)
+                              if (kosan?.fasilitas != null &&
+                                  kosan!.fasilitas.isNotEmpty)
                                 ...kosan.fasilitas.map((facility) {
                                   IconData icon;
                                   String facilityStr = facility.toString();
-                                  
-                                  if (facilityStr.toLowerCase().contains('living') || 
-                                      facilityStr.toLowerCase().contains('ruang tamu')) {
+
+                                  if (facilityStr.toLowerCase().contains(
+                                        'living',
+                                      ) ||
+                                      facilityStr.toLowerCase().contains(
+                                        'ruang tamu',
+                                      )) {
                                     icon = Icons.weekend;
-                                  } else if (facilityStr.toLowerCase().contains('bed') || 
-                                           facilityStr.toLowerCase().contains('kamar')) {
+                                  } else if (facilityStr.toLowerCase().contains(
+                                        'bed',
+                                      ) ||
+                                      facilityStr.toLowerCase().contains(
+                                        'kamar',
+                                      )) {
                                     icon = Icons.bed;
-                                  } else if (facilityStr.toLowerCase().contains('dining') || 
-                                           facilityStr.toLowerCase().contains('makan')) {
+                                  } else if (facilityStr.toLowerCase().contains(
+                                        'dining',
+                                      ) ||
+                                      facilityStr.toLowerCase().contains(
+                                        'makan',
+                                      )) {
                                     icon = Icons.restaurant;
-                                  } else if (facilityStr.toLowerCase().contains('kitchen') || 
-                                           facilityStr.toLowerCase().contains('dapur')) {
+                                  } else if (facilityStr.toLowerCase().contains(
+                                        'kitchen',
+                                      ) ||
+                                      facilityStr.toLowerCase().contains(
+                                        'dapur',
+                                      )) {
                                     icon = Icons.kitchen;
-                                  } else if (facilityStr.toLowerCase().contains('bath') || 
-                                           facilityStr.toLowerCase().contains('mandi')) {
+                                  } else if (facilityStr.toLowerCase().contains(
+                                        'bath',
+                                      ) ||
+                                      facilityStr.toLowerCase().contains(
+                                        'mandi',
+                                      )) {
                                     icon = Icons.shower;
-                                  } else if (facilityStr.toLowerCase().contains('wifi') || 
-                                           facilityStr.toLowerCase().contains('internet')) {
+                                  } else if (facilityStr.toLowerCase().contains(
+                                        'wifi',
+                                      ) ||
+                                      facilityStr.toLowerCase().contains(
+                                        'internet',
+                                      )) {
                                     icon = Icons.wifi;
-                                  } else if (facilityStr.toLowerCase().contains('ac') || 
-                                           facilityStr.toLowerCase().contains('air')) {
+                                  } else if (facilityStr.toLowerCase().contains('ac') ||
+                                      facilityStr.toLowerCase().contains('air')) {
                                     icon = Icons.ac_unit;
                                   } else {
                                     icon = Icons.home;
                                   }
-                                  
+
                                   return Chip(
                                     avatar: Icon(icon, size: 20),
                                     label: Text(facilityStr),
@@ -364,7 +475,9 @@ class _DetailPageState extends State<DetailPage> {
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Nomor WhatsApp tidak tersedia'),
+                                  content: Text(
+                                    'Nomor WhatsApp tidak tersedia',
+                                  ),
                                   backgroundColor: Colors.red,
                                 ),
                               );

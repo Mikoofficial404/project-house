@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_house/shared/theme.dart';
+import 'package:project_house/ui/pages/favorite.dart';
 import 'package:project_house/ui/pages/home_page.dart';
 import 'package:project_house/ui/pages/search_page.dart';
 import 'package:project_house/ui/pages/profile_page.dart';
@@ -7,7 +8,7 @@ import 'package:project_house/ui/pages/change_username_page.dart';
 import 'package:project_house/ui/pages/login_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:project_house/mobile/auth_services.dart';
-
+import 'package:project_house/ui/pages/profile_delete.dart';
 
 class ProfileSettingPage extends StatefulWidget {
   const ProfileSettingPage({Key? key}) : super(key: key);
@@ -17,30 +18,33 @@ class ProfileSettingPage extends StatefulWidget {
 }
 
 class _ProfileSettingPageState extends State<ProfileSettingPage> {
-
-
-
   final List<Widget> list = const [Text('Home'), Text('Exprole'), Text('User')];
 
-  int _selectedIndex = 2;
+  int _selectedIndex = 3;
 
   List<dynamic> menuItems = [
     {'icon': 'assets/images/home.svg', 'label': 'Home'},
     {'icon': 'assets/images/search.svg', 'label': 'Explore'},
+    {'icon': 'assets/images/love.svg', 'label': 'love'},
     {'icon': 'assets/images/user.svg', 'label': 'User'},
   ];
 
-  final List<Widget> _pages = [HomePage(), SearchPage(), ProfileSettingPage()];
+  final List<Widget> _pages = [
+    HomePage(),
+    SearchPage(),
+    FavoritePage(),
+    ProfileSettingPage(),
+  ];
   String username = '';
   String email = '';
   String? avatarPath = 'assets/images/circle_avatar.png';
-  
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
   }
-  
+
   Future<void> _loadUserData() async {
     final user = authService.value.currenctUser;
     if (user != null) {
@@ -85,7 +89,10 @@ class _ProfileSettingPageState extends State<ProfileSettingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile Settings'),
+        title: const Text(
+          'Profile Settings',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         elevation: 0,
       ),
@@ -94,21 +101,15 @@ class _ProfileSettingPageState extends State<ProfileSettingPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 5),
               CircleAvatar(
                 radius: 50,
                 backgroundImage: AssetImage('assets/images/circle_avatar.png'),
               ),
               const SizedBox(height: 20),
-              Text(
-                username,
-                style: Theme.of(context).textTheme.titleLarge, 
-              ),
+              Text(username, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 10),
-              Text(
-                email,
-                style: Theme.of(context).textTheme.bodyLarge, 
-              ),
+              Text(email, style: Theme.of(context).textTheme.bodyLarge),
               const SizedBox(height: 30),
               _buildSettingsCard(context),
             ],
@@ -124,20 +125,21 @@ class _ProfileSettingPageState extends State<ProfileSettingPage> {
         type: BottomNavigationBarType.fixed,
         selectedLabelStyle: const TextStyle(height: 1.5, fontSize: 12),
         unselectedLabelStyle: const TextStyle(height: 1.5, fontSize: 12),
-        items: menuItems.map((i) {
-          return BottomNavigationBarItem(
-            activeIcon: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                color: Colors.grey,
-                borderRadius: BorderRadius.all(Radius.circular(14)),
-              ),
-              child: SvgPicture.asset(i['icon'], color: Colors.white),
-            ),
-            icon: SvgPicture.asset(i['icon'], color: Colors.grey),
-            label: i['label'],
-          );
-        }).toList(),
+        items:
+            menuItems.map((i) {
+              return BottomNavigationBarItem(
+                activeIcon: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: const BoxDecoration(
+                    color: Colors.grey,
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                  ),
+                  child: SvgPicture.asset(i['icon'], color: Colors.white),
+                ),
+                icon: SvgPicture.asset(i['icon'], color: Colors.grey),
+                label: i['label'],
+              );
+            }).toList(),
         currentIndex: _selectedIndex,
         selectedItemColor: purpleColor,
         onTap: _onItemTapped,
@@ -148,9 +150,7 @@ class _ProfileSettingPageState extends State<ProfileSettingPage> {
   Widget _buildSettingsCard(BuildContext context) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(
         children: [
           _buildListTile(
@@ -168,6 +168,18 @@ class _ProfileSettingPageState extends State<ProfileSettingPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
+          ),
+          const Divider(height: 1),
+          _buildListTile(
+            context,
+            icon: Icons.safety_check,
+            title: 'Delete Account',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileDelete()),
               );
             },
           ),
@@ -195,10 +207,7 @@ class _ProfileSettingPageState extends State<ProfileSettingPage> {
   }) {
     return ListTile(
       leading: Icon(icon, color: color),
-      title: Text(
-        title,
-        style: TextStyle(color: color),
-      ),
+      title: Text(title, style: TextStyle(color: color)),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: onTap,
     );
@@ -224,7 +233,7 @@ class _ProfileSettingPageState extends State<ProfileSettingPage> {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginPage()),
-                  (route) => false, // Remove all previous routes
+                  (route) => false,
                 );
               },
               child: const Text('Logout'),
