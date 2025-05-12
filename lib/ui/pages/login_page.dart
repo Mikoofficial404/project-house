@@ -4,9 +4,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:project_house/shared/theme.dart';
 import 'package:project_house/mobile/auth_services.dart';
+import 'package:project_house/ui/pages/profile_page.dart';
 
 class LoginPage extends StatefulWidget {
-  const   LoginPage({super.key});
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -146,7 +147,32 @@ class _LoginPageState extends State<LoginPage> {
                 return null;
               },
             ),
-            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    padding: EdgeInsets.zero,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfilePage()),
+                    );
+                  },
+                  child: Text(
+                    'Forget Password ?',
+                    style: blackTextStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             ElevatedButton(
               onPressed: login,
               style: ElevatedButton.styleFrom(
@@ -166,7 +192,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 5),
+            const SizedBox(height: 3),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
