@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:project_house/shared/theme.dart';
-import 'package:project_house/ui/pages/home_page.dart';
-import 'package:project_house/ui/pages/profile_setting.dart';
-import 'package:project_house/ui/pages/search_page.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:project_house/mobile/auth_services.dart';
 import 'package:project_house/ui/pages/login_page.dart';
 
@@ -15,7 +11,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  int _selectedIndex = 2;
   bool _isLoading = false;
 
   final emailControllers = TextEditingController();
