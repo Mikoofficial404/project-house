@@ -37,7 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill the email field with the user's email
+
     final user = authService.value.currenctUser;
     if (user != null && user.email != null) {
       emailControllers.text = user.email!;
@@ -89,14 +89,6 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Center(
-              child: const CircleAvatar(
-                radius: 50,
-                backgroundImage: AssetImage('assets/images/circle_avatar.png'),
-              ),
-            ),
-
-            const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -310,7 +302,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         )
                         : Text(
-                          'Save Changes',
+                          'Update Password',
                           style: whiteTextSF.copyWith(
                             fontSize: 16,
                             fontWeight: extraBold,

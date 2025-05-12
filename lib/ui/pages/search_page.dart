@@ -6,7 +6,6 @@ import 'package:project_house/shared/theme.dart';
 import 'package:project_house/ui/pages/detail_page.dart';
 import 'package:project_house/ui/pages/favorite.dart';
 import 'package:project_house/ui/pages/home_page.dart';
-import 'package:project_house/ui/pages/profile_page.dart';
 import 'package:project_house/models/kosan.dart';
 import 'package:project_house/ui/pages/profile_setting.dart';
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project_house/shared/theme.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AdminRegisterPage extends StatefulWidget {
   const AdminRegisterPage({Key? key}) : super(key: key);
@@ -42,6 +43,18 @@ class _AdminRegisterPageState extends State<AdminRegisterPage> {
               email: _emailController.text.trim(),
               password: _passwordController.text.trim(),
             );
+
+        // Save admin user to Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set({
+              'email': userCredential.user!.email,
+              'uid': userCredential.user!.uid,
+              'emailVerified': userCredential.user!.emailVerified,
+              'isAdmin': true,
+              'createdAt': DateTime.now(),
+            });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

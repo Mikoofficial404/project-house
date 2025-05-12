@@ -1,19 +1,20 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:another_carousel_pro/another_carousel_pro.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:project_house/shared/theme.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import 'package:project_house/models/kosan.dart';
+import 'package:project_house/services/kosan_service.dart';
+import 'package:project_house/shared/theme.dart';
 import 'package:project_house/ui/pages/customer_services.dart';
 import 'package:project_house/ui/pages/detail_page.dart';
 import 'package:project_house/ui/pages/favorite.dart';
 import 'package:project_house/ui/pages/profile_setting.dart';
 import 'package:project_house/ui/pages/search_page.dart';
-import 'package:project_house/services/kosan_service.dart';
-import 'package:project_house/models/kosan.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
   @override
   State<HomePage> createState() => _HomePageState();
 }

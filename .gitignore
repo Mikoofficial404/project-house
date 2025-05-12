@@ -57,4 +57,7 @@ android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 macos/Runner/GoogleService-Info.plist
 
+# ignore services chat
+lib/ui/pages/customer_services.dart
+
 

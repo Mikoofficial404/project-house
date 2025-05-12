@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 ValueNotifier<AuthServices> authService = ValueNotifier(AuthServices());
 
 class AuthServices {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   User? get currenctUser => firebaseAuth.currentUser;
@@ -26,10 +28,25 @@ class AuthServices {
     required String email,
     required String password,
   }) async {
-    return await firebaseAuth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    UserCredential userCredential = await firebaseAuth
+        .createUserWithEmailAndPassword(email: email, password: password);
+
+    // Save user data to Firestore
+    await saveUserToFirestore(userCredential.user!);
+
+    return userCredential;
+  }
+
+  // Add a method to save user data to Firestore
+  Future<void> saveUserToFirestore(User user) async {
+    await _firestore.collection('users').doc(user.uid).set({
+      'email': user.email,
+      'uid': user.uid,
+      'emailVerified': user.emailVerified,
+      'displayName': user.displayName,
+      'isAdmin': false, // default to regular user
+      'createdAt': DateTime.now(),
+    });
   }
 
   Future<void> signOut() async {
@@ -42,6 +59,13 @@ class AuthServices {
 
   Future<void> updateUsername({required String username}) async {
     await currenctUser!.updateDisplayName(username);
+
+    // Update username in Firestore as well
+    if (currenctUser != null) {
+      await _firestore.collection('users').doc(currenctUser!.uid).update({
+        'displayName': username,
+      });
+    }
   }
 
   Future<void> deleteAccount({
@@ -53,6 +77,12 @@ class AuthServices {
       password: password,
     );
     await currenctUser!.reauthenticateWithCredential(credential);
+
+    // Delete user data from Firestore first
+    if (currenctUser != null) {
+      await _firestore.collection('users').doc(currenctUser!.uid).delete();
+    }
+
     await currenctUser!.delete();
     await firebaseAuth.signOut();
   }
@@ -84,6 +114,14 @@ class AuthServices {
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
-    return await firebaseAuth.signInWithCredential(credential);
+
+    UserCredential userCredential = await firebaseAuth.signInWithCredential(
+      credential,
+    );
+
+    // Also save Google sign-in users to Firestore
+    await saveUserToFirestore(userCredential.user!);
+
+    return userCredential;
   }
 }

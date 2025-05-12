@@ -53,7 +53,11 @@ class _FavoritePageState extends State<FavoritePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('Favorite Properties')),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('Favorite Properties'),
+        automaticallyImplyLeading: false,
+      ),
       body: StreamBuilder<List<Kosan>>(
         stream: _favoriteService.getFavorites(),
         builder: (context, snapshot) {

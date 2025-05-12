@@ -59,7 +59,7 @@ class _DetailPageState extends State<DetailPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          _isFavorite ? 'Added to favorites' : 'Removed from favorites',
+          _isFavorite ? 'Ditambahkan Ke favorite' : 'Hapus dari favorit',
         ),
         backgroundColor: _isFavorite ? Colors.green : Colors.red,
         duration: Duration(seconds: 1),
