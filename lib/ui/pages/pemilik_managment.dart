@@ -17,7 +17,6 @@ class _PemilikManagmentState extends State<PemilikManagment> {
   List<PemilikModel> dataPmk = [];
   bool isLoading = true;
 
-  // Theme colors
   final Color primaryColor = Colors.indigo;
   final Color accentColor = Colors.indigoAccent;
 

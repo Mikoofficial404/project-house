@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_house/ui/pages/pemilik_managment.dart';
+import 'package:project_house/ui/pages/penghasilan.dart';
 import 'admin_page.dart';
 
 class DashboardAdmin extends StatefulWidget {
@@ -33,7 +34,7 @@ class _DashboardAdminState extends State<DashboardAdmin> {
       'title': 'Penghasilan',
       'icon': Icons.analytics,
       'color': Colors.purple,
-      'route': () => const AdminPage(),
+      'route': () => const PenghasilanPage(),
     },
   ];
 

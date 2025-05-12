@@ -88,6 +88,6 @@ class DatabaseHelper {
 
   Future<int> deletePenghasilan(int id) async {
     final db = await database;
-    return await db.delete('pemilik', where: 'id=?', whereArgs: [id]);
+    return await db.delete('penghasilan', where: 'id=?', whereArgs: [id]);
   }
 }
