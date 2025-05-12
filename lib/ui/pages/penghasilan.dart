@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:project_house/database/database_helper.dart';
 import 'package:project_house/models/penghasilan.dart';
-import 'package:sqflite/sqflite.dart';
 
 class PenghasilanPage extends StatefulWidget {
   const PenghasilanPage({super.key});
