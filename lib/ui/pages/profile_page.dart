@@ -60,6 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(backgroundColor: Colors.white, elevation: 0),
       body: SingleChildScrollView(
         child: Column(
@@ -199,7 +200,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   _isLoading
                       ? null
                       : () async {
-                        // Validate fields
                         if (emailControllers.text.isEmpty ||
                             currentPasswordControllers.text.isEmpty ||
                             newPasswordControllers.text.isEmpty) {

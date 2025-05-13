@@ -59,6 +59,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
@@ -76,8 +77,6 @@ class _SignupPageState extends State<SignupPage> {
           },
         ),
       ),
-
-      backgroundColor: Colors.white,
       body: Form(
         key: fromKey,
         child: ListView(
